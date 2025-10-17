@@ -1,386 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MomentumScout Player Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
-        }
-        .attribute-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #21262d;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-            border-radius: 4px;
-        }
-        .attribute-slider:hover { opacity: 1; }
-        .attribute-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #2e8b57;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .attribute-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: #2e8b57;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.8);
-        }
-        .modal-content {
-            margin: 5% auto;
-            width: 90%;
-            max-width: 600px;
-        }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-button:hover { color: #fff; }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #2e8b57;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MomentumScout Player Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+    .attribute-slider {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px;
+      background: #21262d; outline: none; border-radius: 4px; transition: opacity .2s;
+    }
+    .attribute-slider:hover { opacity: 1; }
+    .attribute-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px; background: #22c55e;
+      cursor: pointer; border-radius: 50%;
+    }
+    .modal {
+      display: none; position: fixed; z-index: 100; left: 0; top: 0;
+      width: 100%; height: 100%; background-color: rgba(0,0,0,0.85);
+    }
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top: 4px solid #22c55e;
+      border-radius: 50%; width: 40px; height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
 </head>
+
 <body class="bg-gray-900 text-gray-100 p-6 min-h-screen flex flex-col items-center">
 
-    <!-- Access code prompt -->
-    <script>
-        const password = prompt("Enter your access code:");
-        if(password !== "SCOUT2025"){
-            alert("Access denied.");
-            window.location.href = "index.html";
-        }
-    </script>
+  <!-- Access Code -->
+  <script>
+    const password = prompt("Enter your access code:");
+    if (password !== "SCOUT2025") {
+      alert("Access denied.");
+      window.location.href = "index.html";
+    }
+  </script>
 
-    <!-- Player Modal -->
-    <div id="playerModal" class="modal">
-        <div class="modal-content bg-gray-800 p-6 rounded-lg shadow-lg relative">
-            <span class="close-button absolute top-2 right-4">&times;</span>
-            <div id="modalContent" class="text-gray-100"></div>
-        </div>
+  <!-- Player Modal -->
+  <div id="playerModal" class="modal">
+    <div class="bg-gray-800 rounded-lg shadow-xl p-6 max-w-lg mx-auto mt-20 relative">
+      <span id="closeModal" class="absolute top-2 right-4 text-3xl cursor-pointer text-gray-400 hover:text-white">&times;</span>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Container -->
+  <div class="container mx-auto p-8 bg-gray-800 rounded-2xl shadow-2xl space-y-8 border border-gray-700 w-full max-w-4xl">
+
+    <!-- Header -->
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-500 mb-2">MomentumScout</h1>
+      <h2 class="text-lg text-gray-400">Player Scouting & Value Engine</h2>
     </div>
 
-    <!-- Main Container -->
-    <div class="container mx-auto p-8 bg-gray-800 rounded-2xl shadow-2xl space-y-8 border border-gray-700 w-full max-w-4xl">
-
-        <!-- Header -->
-        <div class="text-center">
-            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-500 mb-2">MomentumScout</h1>
-            <h2 class="text-xl text-gray-400">Player Scouting & Value Engine</h2>
-        </div>
-
-        <!-- Search Player -->
-        <div class="bg-gray-700 p-6 rounded-xl shadow-inner border border-gray-600 space-y-4">
-            <h3 class="text-2xl font-semibold text-green-400">Search for a Player</h3>
-            <div class="flex space-x-2">
-                <input type="text" id="playerNameSearch" placeholder="e.g., Lionel Messi" class="w-full bg-gray-600 text-gray-100 rounded-md p-2 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <button id="searchPlayerBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-gray-900 font-semibold rounded-lg shadow-md transition duration-200">Search</button>
-            </div>
-            <div id="playerSearchRecommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4"></div>
-        </div>
-
-        <!-- Scouting Profile -->
-        <div class="bg-gray-700 p-6 rounded-xl shadow-inner border border-gray-600">
-            <h3 class="text-2xl font-semibold mb-6 text-green-400">Scouting Profile</h3>
-            <div class="mb-6">
-                <label for="position" class="text-sm font-medium block mb-2">Position</label>
-                <select id="position" class="w-full bg-gray-600 text-gray-100 rounded-md p-2 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="GK">Goalkeeper</option>
-                    <option value="RB">Right Back</option>
-                    <option value="LB">Left Back</option>
-                    <option value="CB">Centre Back</option>
-                    <option value="CDM">Defensive Midfielder</option>
-                    <option value="CM">Midfielder</option>
-                    <option value="CAM">Attacking Midfielder</option>
-                    <option value="RW">Right Winger</option>
-                    <option value="LW">Left Winger</option>
-                    <option value="CF">Centre Forward</option>
-                    <option value="ST">Striker</option>
-                </select>
-            </div>
-
-            <!-- Dynamic sliders container -->
-            <div id="dynamicMetrics" class="space-y-6"></div>
-
-            <!-- Weighted sliders container -->
-            <div id="weightingSliders" class="space-y-4 mt-6"></div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-center space-x-4 mt-8">
-                <button id="findPlayersBtn" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-gray-900 font-semibold rounded-lg shadow-md transition duration-200">Find Top Players</button>
-                <button id="resetBtn" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-gray-900 font-semibold rounded-lg shadow-md transition duration-200">Reset All</button>
-            </div>
-        </div>
-
-        <!-- Results -->
-        <div id="resultsSection" class="bg-gray-700 p-6 rounded-xl shadow-inner border border-gray-600">
-            <h3 class="text-2xl font-semibold mb-4 text-green-400 text-center">Top Player Recommendations</h3>
-            <div id="loadingIndicator" class="hidden flex justify-center py-8"><div class="spinner"></div></div>
-            <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
+    <!-- Player Search -->
+    <div class="bg-gray-700 p-6 rounded-xl border border-gray-600 space-y-4">
+      <h3 class="text-2xl font-semibold text-green-400">Search for a Player</h3>
+      <div class="flex space-x-2">
+        <input id="playerNameSearch" type="text" placeholder="e.g. Kylian Mbappé" class="w-full bg-gray-600 text-gray-100 rounded-md p-2 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500">
+        <button id="searchPlayerBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-gray-900 font-semibold rounded-lg shadow-md transition">Search</button>
+      </div>
+      <div id="playerSearchResults" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4"></div>
     </div>
 
-    <!-- JS Logic -->
-    <script>
-       document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
-    const positionSelect = document.getElementById('position');
-    const dynamicMetricsContainer = document.getElementById('dynamicMetrics');
-    const weightingSlidersContainer = document.getElementById('weightingSliders');
-    const findPlayersBtn = document.getElementById('findPlayersBtn');
-    const searchPlayerBtn = document.getElementById('searchPlayerBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const recommendationsContainer = document.getElementById('recommendations');
-    const playerSearchRecommendations = document.getElementById('playerSearchRecommendations');
-    const loadingIndicator = document.getElementById('loadingIndicator');
+    <!-- Scouting Profile -->
+    <div class="bg-gray-700 p-6 rounded-xl border border-gray-600 space-y-4">
+      <h3 class="text-2xl font-semibold text-green-400">Scouting Profile</h3>
 
-    const modal = document.getElementById('playerModal');
-    const closeBtn = modal.querySelector('.close-button');
-    const modalContent = document.getElementById('modalContent');
+      <div>
+        <label for="position" class="text-sm font-medium block mb-2">Position</label>
+        <select id="position" class="w-full bg-gray-600 text-gray-100 rounded-md p-2 border border-gray-500 focus:ring-2 focus:ring-green-500">
+          <option value="GK">Goalkeeper</option>
+          <option value="CB">Centre Back</option>
+          <option value="LB">Left Back</option>
+          <option value="RB">Right Back</option>
+          <option value="CDM">Defensive Midfielder</option>
+          <option value="CM">Central Midfielder</option>
+          <option value="CAM">Attacking Midfielder</option>
+          <option value="RW">Right Winger</option>
+          <option value="LW">Left Winger</option>
+          <option value="CF">Centre Forward</option>
+          <option value="ST">Striker</option>
+        </select>
+      </div>
 
-    // --- Position Metrics ---
-    const POSITION_METRICS = {
-        'GK': { display: ['goalkeeping_diving','goalkeeping_handling','goalkeeping_kicking','goalkeeping_positioning','goalkeeping_reflexes'], weights: [] },
-        'CB': { display: ['pace','passing','defending','power_strength','power_jumping','mentality_interceptions','mentality_positioning','defending_marking_awareness','defending_standing_tackle','defending_sliding_tackle','attacking_crossing'], weights: ['pace','passing','defending'] },
-        'LB': { display: ['pace','passing','defending','power_strength','power_jumping','mentality_interceptions','mentality_positioning','defending_marking_awareness','defending_standing_tackle','defending_sliding_tackle','attacking_crossing'], weights: ['pace','passing','defending'] },
-        'RB': { display: ['pace','passing','defending','power_strength','power_jumping','mentality_interceptions','mentality_positioning','defending_marking_awareness','defending_standing_tackle','defending_sliding_tackle','attacking_crossing'], weights: ['pace','passing','defending'] },
-        'CDM': { display: ['pace','passing','dribbling','defending','physic','mentality_interceptions','mentality_positioning','defending_standing_tackle','defending_sliding_tackle'], weights: ['pace','passing','dribbling','defending','physic'] },
-        'CM': { display: ['pace','passing','dribbling','defending','physic','power_stamina','power_strength','mentality_vision'], weights: ['pace','passing','dribbling','defending','physic'] },
-        'CAM': { display: ['pace','shooting','passing','dribbling','power_long_shots','mentality_vision','mentality_penalties'], weights: ['pace','shooting','passing','dribbling'] },
-        'RW': { display: ['pace','shooting','passing','dribbling','power_long_shots','skill_curve','skill_fk_accuracy','movement_acceleration','movement_sprint_speed'], weights: ['pace','shooting','passing','dribbling'] },
-        'LW': { display: ['pace','shooting','passing','dribbling','power_long_shots','skill_curve','skill_fk_accuracy','movement_acceleration','movement_sprint_speed'], weights: ['pace','shooting','passing','dribbling'] },
-        'CF': { display: ['pace','shooting','passing','dribbling','power_shot_power','power_jumping','mentality_positioning','mentality_composure'], weights: ['pace','shooting','passing','dribbling'] },
-        'ST': { display: ['pace','shooting','dribbling','power_shot_power','power_jumping','power_strength','mentality_positioning','attacking_finishing'], weights: ['pace','shooting','dribbling'] }
-    };
+      <div id="dynamicMetrics" class="space-y-6"></div>
+      <div id="weightingSliders" class="space-y-4 mt-6"></div>
 
-    // --- Helpers ---
-    function formatMetricName(metric){
-        return metric.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-    }
+      <div class="flex justify-center space-x-4 mt-8">
+        <button id="findPlayersBtn" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-gray-900 font-semibold rounded-lg">Find Players</button>
+        <button id="resetBtn" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-gray-900 font-semibold rounded-lg">Reset</button>
+      </div>
+    </div>
 
-    function createSliderHtml(id, min=0, max=99, valMin=0, valMax=99){
+    <!-- Results -->
+    <div id="resultsSection" class="bg-gray-700 p-6 rounded-xl border border-gray-600">
+      <h3 class="text-2xl font-semibold mb-4 text-green-400 text-center">Top Player Recommendations</h3>
+      <div id="loadingIndicator" class="hidden flex justify-center py-8"><div class="spinner"></div></div>
+      <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const backendBase = "https://802eb468d1e1.ngrok-free.app/api"; // your ngrok backend
+
+      const posSelect = document.getElementById("position");
+      const dynMetrics = document.getElementById("dynamicMetrics");
+      const weightContainer = document.getElementById("weightingSliders");
+      const results = document.getElementById("recommendations");
+      const searchBtn = document.getElementById("searchPlayerBtn");
+      const findBtn = document.getElementById("findPlayersBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const loader = document.getElementById("loadingIndicator");
+      const modal = document.getElementById("playerModal");
+      const modalClose = document.getElementById("closeModal");
+      const modalContent = document.getElementById("modalContent");
+      const playerSearchResults = document.getElementById("playerSearchResults");
+
+      modalClose.onclick = () => modal.style.display = "none";
+      window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+
+      const POSITION_METRICS = {
+        "GK": { display: ["goalkeeping_diving","goalkeeping_handling","goalkeeping_reflexes"], weights: [] },
+        "CB": { display: ["pace","defending","passing"], weights: ["pace","defending","passing"] },
+        "CM": { display: ["pace","passing","dribbling","defending","physic"], weights: ["pace","passing","dribbling","defending"] },
+        "CAM": { display: ["pace","shooting","passing","dribbling"], weights: ["pace","shooting","passing","dribbling"] },
+        "ST": { display: ["pace","shooting","dribbling"], weights: ["pace","shooting","dribbling"] }
+      };
+
+      function createSlider(id, min, max, valMin, valMax) {
         return `
-        <div>
-            <label for="${id}_min" class="block text-sm mb-1">${formatMetricName(id)}: <span id="${id}Value">${valMin} - ${valMax}</span></label>
-            <input type="range" id="${id}_min" min="${min}" max="${max}" value="${valMin}" class="attribute-slider w-full">
-            <input type="range" id="${id}_max" min="${min}" max="${max}" value="${valMax}" class="attribute-slider w-full">
-        </div>`;
-    }
+          <div>
+            <label class="block text-sm mb-1">${id.replace(/_/g," ")}: <span id="${id}Val">${valMin} - ${valMax}</span></label>
+            <input id="${id}_min" type="range" min="${min}" max="${max}" value="${valMin}" class="attribute-slider mb-2">
+            <input id="${id}_max" type="range" min="${min}" max="${max}" value="${valMax}" class="attribute-slider">
+          </div>`;
+      }
 
-    function createWeightSliderHtml(metric){
+      function createWeightSlider(id) {
         return `
-        <div>
-            <label for="weight_${metric}" class="block text-sm mb-1">${formatMetricName(metric)} Desire: <span id="weight${metric.charAt(0).toUpperCase()+metric.slice(1)}Value">0</span></label>
-            <input type="range" id="weight_${metric}" min="0" max="100" value="0" class="attribute-slider w-full">
-        </div>`;
-    }
+          <div>
+            <label>${id.replace(/_/g," ")} Desire: <span id="w_${id}_val">50</span></label>
+            <input id="w_${id}" type="range" min="0" max="100" value="50" class="attribute-slider">
+          </div>`;
+      }
 
-    function attachSliderListeners(){
+      function generateSliders() {
+        const pos = posSelect.value;
+        dynMetrics.innerHTML = createSlider("overall",50,99,70,95) + createSlider("age",16,40,20,30);
+        (POSITION_METRICS[pos]?.display || []).forEach(m => dynMetrics.innerHTML += createSlider(m,0,99,50,99));
+
+        weightContainer.innerHTML = "<h4 class='text-lg font-semibold text-green-400'>Desired Attributes</h4>";
+        (POSITION_METRICS[pos]?.weights || []).forEach(m => weightContainer.innerHTML += createWeightSlider(m));
+
         document.querySelectorAll('input[type="range"]').forEach(slider=>{
-            slider.oninput = () => {
-                const id = slider.id.replace('_min','').replace('_max','');
-                const min = document.getElementById(id+'_min')?.value || 0;
-                const max = document.getElementById(id+'_max')?.value || 0;
-                const span = document.getElementById(id+'Value');
-                if(span) span.textContent = `${min} - ${max}`;
-
-                if(slider.id.startsWith('weight_')){
-                    const weightSpan = document.getElementById('weight'+id.charAt(0).toUpperCase()+id.slice(1)+'Value');
-                    if(weightSpan) weightSpan.textContent = slider.value;
-                }
-            };
-        });
-    }
-
-    function generateSliders(){
-        const pos = positionSelect.value;
-        const metrics = POSITION_METRICS[pos]?.display || [];
-        const weightMetrics = POSITION_METRICS[pos]?.weights || [];
-
-        dynamicMetricsContainer.innerHTML = '';
-        weightingSlidersContainer.innerHTML = '';
-
-        // Core sliders
-        dynamicMetricsContainer.innerHTML += createSliderHtml('overall',50,99,75,95);
-        dynamicMetricsContainer.innerHTML += createSliderHtml('age',16,45,20,30);
-        dynamicMetricsContainer.innerHTML += createSliderHtml('value',0,999,1,50);
-
-        // Dynamic metrics
-        metrics.forEach(metric => dynamicMetricsContainer.innerHTML += createSliderHtml(metric));
-
-        // Weight sliders
-        let weightHtml = '<h4 class="text-lg font-semibold text-green-400">Desired Attribute Focus</h4>';
-        weightMetrics.forEach(metric => weightHtml += createWeightSliderHtml(metric));
-        weightingSlidersContainer.innerHTML = weightHtml;
-
-        attachSliderListeners();
-    }
-
-    // --- Reset ---
-    resetBtn.addEventListener('click',()=>location.reload());
-    positionSelect.addEventListener('change', generateSliders);
-
-    // --- Modal ---
-    closeBtn.onclick = ()=>modal.style.display='none';
-    window.onclick = e=>{if(e.target==modal) modal.style.display='none';};
-    function showPlayerModal(player){
-        let html='';
-        const attrs = player.full_attributes;
-        for(const key in attrs){
-            let val = attrs[key];
-            const formattedKey = formatMetricName(key);
-            if(key.toLowerCase().includes('value') && val>=1000000) val='£'+(val/1000000).toFixed(2)+'M';
-            if(key.toLowerCase().includes('wage') && val>=1000) val='£'+val.toLocaleString('en-GB');
-            html+=`<div class="flex justify-between py-1 border-b border-gray-600"><span class="font-semibold">${formattedKey}:</span> <span>${val}</span></div>`;
-        }
-        modalContent.innerHTML=`
-        <div class="flex flex-col items-center mb-4">
-            <img src="${player.player_face_url}" class="w-24 h-24 rounded-full border-2 border-green-500">
-            <div class="text-2xl font-bold mt-4">${player.short_name}</div>
-            <div class="text-lg text-gray-400">${player.club_position} | OVR: ${player.overall} | POT: ${player.potential}</div>
-            <div class="text-md text-green-300 mt-1">Value: £${(player.value_eur/1000000).toFixed(1)}M</div>
-            <div class="text-sm text-gray-500">Negotiation: £${(player.min_value_eur/1000000).toFixed(1)}M - £${(player.max_value_eur/1000000).toFixed(1)}M</div>
-        </div>
-        <div class="overflow-y-auto max-h-96">${html}</div>`;
-        modal.style.display='block';
-    }
-
-    // --- Fetch wrapper ---
-    async function safeFetch(url,data){
-        try{
-            const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-            if(!res.ok) throw new Error(`Server error: ${res.status}`);
-            return await res.json();
-        } catch(e){console.error('Fetch error:',e); return {error:true,message:e.message}; }
-    }
-
-    // --- Find Players ---
-    findPlayersBtn.addEventListener('click',async()=>{
-        loadingIndicator.classList.remove('hidden');
-        recommendationsContainer.innerHTML='';
-        playerSearchRecommendations.innerHTML='';
-
-        const scoutingProfile = {};
-        document.querySelectorAll('input[type="range"]').forEach(slider=>{
-            if(slider.id.startsWith('weight_')){
-                if(!scoutingProfile.weights) scoutingProfile.weights={};
-                scoutingProfile.weights[slider.id.replace('weight_','')]=parseInt(slider.value);
-            } else {
-                scoutingProfile[slider.id]=parseFloat(slider.value);
+          slider.oninput=()=>{
+            const spanId = slider.id.includes("w_") ? slider.id + "_val" : slider.id.replace("_min","").replace("_max","") + "Val";
+            const span = document.getElementById(spanId);
+            if(span){
+              if(slider.id.includes("w_")) span.textContent = slider.value;
+              else {
+                const id = slider.id.replace("_min","").replace("_max","");
+                const min = document.getElementById(id+"_min").value;
+                const max = document.getElementById(id+"_max").value;
+                span.textContent = `${min} - ${max}`;
+              }
             }
+          }
         });
+      }
 
-        scoutingProfile.club_position=positionSelect.value;
-        scoutingProfile.value_min=scoutingProfile.value_min*1000000;
-        scoutingProfile.value_max=scoutingProfile.value_max*1000000;
+      posSelect.addEventListener("change", generateSliders);
+      resetBtn.addEventListener("click", () => location.reload());
+      generateSliders();
 
-        const backendUrl='https://802eb468d1e1.ngrok-free.app/api/find_players';
-
-        const data = await safeFetch(backendUrl,scoutingProfile);
-        loadingIndicator.classList.add('hidden');
-
-        if(data.error){
-            recommendationsContainer.innerHTML=`<div class="text-center text-red-400 p-4 col-span-full">${data.message}</div>`;
-            return;
+      async function safeFetch(url, data) {
+        try {
+          const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+          if (!res.ok) throw new Error(`Server error ${res.status}`);
+          return await res.json();
+        } catch (err) {
+          console.error("Fetch error:", err);
+          alert("Unable to reach server. Try again later.");
+          return { error: true };
         }
+      }
 
-        displayRecommendations(data.players,recommendationsContainer);
-    });
-
-    // --- Search Player ---
-    searchPlayerBtn.addEventListener('click',async()=>{
-        loadingIndicator.classList.remove('hidden');
-        playerSearchRecommendations.innerHTML='';
-        recommendationsContainer.innerHTML='';
-
-        const playerName=document.getElementById('playerNameSearch').value;
-        if(!playerName){loadingIndicator.classList.add('hidden'); playerSearchRecommendations.innerHTML='<div class="text-center text-gray-400 p-4 col-span-full">Enter a player name.</div>'; return;}
-
-        const backendUrl='https://802eb468d1e1.ngrok-free.app/api/search_player';
-        const data = await safeFetch(backendUrl,{player_name:playerName});
-        loadingIndicator.classList.add('hidden');
-        if(data.error){playerSearchRecommendations.innerHTML=`<div class="text-center text-red-400 p-4 col-span-full">${data.message}</div>`; return;}
-        displaySearchResults(data,playerSearchRecommendations);
-    });
-
-    // --- Display Functions ---
-    function displaySearchResults(players,container){
-        container.innerHTML='';
-        if(!players.length){container.innerHTML='<div class="text-center text-gray-400 p-4 col-span-full">No players found.</div>'; return;}
-        players.forEach(player=>{
-            const card=document.createElement('div');
-            card.className='bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-600 flex flex-col items-center text-center cursor-pointer transition-transform duration-200 transform hover:scale-105';
-            card.innerHTML=`<div class="text-xl font-bold text-green-400 mb-1">${player.short_name}</div>
-                <div class="text-gray-300">${player.club_position} | OVR: ${player.overall}</div>
-                <div class="text-gray-400">Value: £${(player.value_eur/1000000).toFixed(1)}M</div>
-                <div class="text-xs text-gray-500 mt-2">Potential: ${player.potential} | Projected: ${player.projected_potential}</div>`;
-            card.onclick=()=>showPlayerModal(player);
-            container.appendChild(card);
+      findBtn.onclick = async () => {
+        loader.classList.remove("hidden");
+        results.innerHTML = "";
+        const payload = {};
+        document.querySelectorAll('input[type="range"]').forEach(sl => {
+          if (sl.id.startsWith("w_")) {
+            payload.weights = payload.weights || {};
+            payload.weights[sl.id.replace("w_","")] = parseInt(sl.value);
+          } else payload[sl.id] = parseFloat(sl.value);
         });
-    }
+        payload.club_position = posSelect.value;
+        const res = await safeFetch(`${backendBase}/find_players`, payload);
+        loader.classList.add("hidden");
+        displayPlayers(res.players || [], results);
+      };
 
-    function displayRecommendations(players,container){
-        container.innerHTML='';
-        if(!players.length){container.innerHTML='<div class="text-center text-gray-400 p-4 col-span-full">No players match your criteria.</div>'; return;}
-        players.forEach(player=>{
-            const card=document.createElement('div');
-            card.className='bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-600 flex flex-col items-center text-center cursor-pointer transition-transform duration-200 transform hover:scale-105';
-            card.innerHTML=`<img src="${player.player_face_url}" alt="${player.short_name}" class="w-24 h-24 rounded-full mb-4 border-2 border-green-500">
-                <div class="text-xl font-bold text-green-400 mb-1">${player.short_name}</div>
-                <div class="text-gray-300">${player.club_position} | OVR: ${player.overall}</div>
-                <div class="text-gray-400">Value: £${(player.value_eur/1000000).toFixed(1)}M</div>
-                <div class="text-gray-400 text-sm mt-2">
-                    <span class="font-semibold text-green-300">Pace:</span> ${player.pace} |
-                    <span class="font-semibold text-green-300">Shooting:</span> ${player.shooting} |
-                    <span class="font-semibold text-green-300">Passing:</span> ${player.passing} |
-                    <span class="font-semibold text-green-300">Dribbling:</span> ${player.dribbling}
-                </div>`;
-            card.onclick=()=>showPlayerModal(player);
-            container.appendChild(card);
+      searchBtn.onclick = async () => {
+        const name = document.getElementById("playerNameSearch").value;
+        if (!name) return alert("Enter player name");
+        loader.classList.remove("hidden");
+        playerSearchResults.innerHTML = "";
+        const res = await safeFetch(`${backendBase}/search_player`, { player_name: name });
+        loader.classList.add("hidden");
+        displayPlayers(res || [], playerSearchResults);
+      };
+
+      function displayPlayers(players, container) {
+        container.innerHTML = "";
+        if (!players.length) {
+          container.innerHTML = "<div class='text-center text-gray-400 col-span-full'>No results found.</div>";
+          return;
+        }
+        players.forEach(p => {
+          const card = document.createElement("div");
+          card.className = "bg-gray-800 p-6 rounded-xl border border-gray-600 text-center hover:scale-105 transition-transform cursor-pointer";
+          card.innerHTML = `
+            <img src="${p.player_face_url || ''}" alt="${p.short_name}" class="w-20 h-20 rounded-full mx-auto border-2 border-green-500 mb-3">
+            <h4 class="text-lg font-bold text-green-400">${p.short_name}</h4>
+            <p class="text-gray-400">${p.club_position} | OVR: ${p.overall}</p>
+            <p class="text-gray-500 text-sm">Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>`;
+          card.onclick = () => showModal(p);
+          container.appendChild(card);
         });
-    }
+      }
 
-    // --- Initial setup ---
-    generateSliders();
-});
-    </script>
+      function showModal(p) {
+        modalContent.innerHTML = `
+          <div class="text-center">
+            <img src="${p.player_face_url || ''}" class="w-24 h-24 rounded-full border-2 border-green-500 mx-auto mb-2">
+            <h3 class="text-2xl font-bold text-green-400">${p.short_name}</h3>
+            <p>${p.club_position} | OVR ${p.overall}</p>
+            <p>Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>
+          </div>`;
+        modal.style.display = "block";
+      }
+    });
+  </script>
 
 </body>
 </html>
-
