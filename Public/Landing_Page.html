@@ -141,6 +141,7 @@ const formMessage = document.getElementById('formMessage');
 
 demoForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  
   const data = {
     fullName: demoForm.fullName.value,
     email: demoForm.email.value,
@@ -150,25 +151,27 @@ demoForm.addEventListener('submit', async (e) => {
 
   try {
     const response = await fetch(
-  'https://momentumai-backend-g1ov.onrender.com/api/submit_demo',
- {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+      'https://momentumai-backend-g1ov.onrender.com/api/submit_demo',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }
+    );
 
     if (!response.ok) throw new Error('Network response was not ok');
 
     const result = await response.json();
+    
     if (result.success) {
-        formMessage.classList.remove('hidden');
-        formMessage.innerHTML = `
-          ✅ Thank you, ${data.fullName}!<br>
-          Your demo dashboard is ready: <a href="${result.dashboard_link}" target="_blank" class="underline font-bold">Click here to access</a>
-        `;
-        demoForm.reset();
+      formMessage.classList.remove('hidden');
+      formMessage.innerHTML = `
+        ✅ Thank you, ${data.fullName}!<br>
+        Your demo dashboard is ready: <a href="${result.dashboard_link}" target="_blank" class="underline font-bold">Click here to access</a>
+      `;
+      demoForm.reset();
     } else {
-        throw new Error(result.message || 'Error submitting form.');
+      throw new Error(result.message || 'Error submitting form.');
     }
 
   } catch (error) {
@@ -176,6 +179,3 @@ demoForm.addEventListener('submit', async (e) => {
     alert("There was an error submitting the form. Please try again.");
   }
 });
-</script>
-</body>
-</html>
