@@ -75,19 +75,7 @@
 
       <div>
         <label for="position" class="text-sm font-medium block mb-2">Position</label>
-        <select id="position" class="w-full bg-gray-600 text-gray-100 rounded-md p-2 border border-gray-500 focus:ring-2 focus:ring-green-500">
-          <option value="GK">Goalkeeper</option>
-          <option value="CB">Centre Back</option>
-          <option value="LB">Left Back</option>
-          <option value="RB">Right Back</option>
-          <option value="CDM">Defensive Midfielder</option>
-          <option value="CM">Central Midfielder</option>
-          <option value="CAM">Attacking Midfielder</option>
-          <option value="RW">Right Winger</option>
-          <option value="LW">Left Winger</option>
-          <option value="CF">Centre Forward</option>
-          <option value="ST">Striker</option>
-        </select>
+        <select id="position" class="w-full bg-gray-600 text-gray-100 rounded-md p-2 border border-gray-500 focus:ring-2 focus:ring-green-500"></select>
       </div>
 
       <div id="dynamicMetrics" class="space-y-6"></div>
@@ -108,171 +96,155 @@
 
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // ✅ Use your Render backend here
-      const BACKEND_URL = "https://momentumai-backend-g1ov.onrender.com";
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const BACKEND_URL = "https://momentumai-backend-g1ov.onrender.com";
 
-      const posSelect = document.getElementById("position");
-      const dynMetrics = document.getElementById("dynamicMetrics");
-      const weightContainer = document.getElementById("weightingSliders");
-      const results = document.getElementById("recommendations");
-      const searchBtn = document.getElementById("searchPlayerBtn");
-      const findBtn = document.getElementById("findPlayersBtn");
-      const resetBtn = document.getElementById("resetBtn");
-      const loader = document.getElementById("loadingIndicator");
-      const modal = document.getElementById("playerModal");
-      const modalClose = document.getElementById("closeModal");
-      const modalContent = document.getElementById("modalContent");
-      const playerSearchResults = document.getElementById("playerSearchResults");
+  const posSelect = document.getElementById("position");
+  const dynMetrics = document.getElementById("dynamicMetrics");
+  const weightContainer = document.getElementById("weightingSliders");
+  const results = document.getElementById("recommendations");
+  const searchBtn = document.getElementById("searchPlayerBtn");
+  const findBtn = document.getElementById("findPlayersBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const loader = document.getElementById("loadingIndicator");
+  const modal = document.getElementById("playerModal");
+  const modalClose = document.getElementById("closeModal");
+  const modalContent = document.getElementById("modalContent");
+  const playerSearchResults = document.getElementById("playerSearchResults");
 
-      modalClose.onclick = () => modal.style.display = "none";
-      window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+  modalClose.onclick = () => modal.style.display = "none";
+  window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 
-      const POSITION_METRICS = {
-        'GK': {
-                   display: ['goalkeeping_diving', 'goalkeeping_handling', 'goalkeeping_kicking', 'goalkeeping_positioning', 'goalkeeping_reflexes'],
-                   weights: ['goalkeeping_diving', 'goalkeeping_handling', 'goalkeeping_kicking', 'goalkeeping_positioning', 'goalkeeping_reflexes']
-               },
-               'CB': {
-                   display: ['pace', 'passing', 'defending', 'power_strength', 'power_jumping', 'mentality_interceptions', 'mentality_positioning', 'defending_marking_awareness', 'defending_standing_tackle', 'defending_sliding_tackle', 'attacking_crossing'],
-                   weights: ['pace', 'passing', 'defending']
-               },
-               'LB': {
-                   display: ['pace', 'passing', 'defending', 'power_strength', 'power_jumping', 'mentality_interceptions', 'mentality_positioning', 'defending_marking_awareness', 'defending_standing_tackle', 'defending_sliding_tackle', 'attacking_crossing'],
-                   weights: ['pace', 'passing', 'defending']
-               },
-               'RB': {
-                   display: ['pace', 'passing', 'defending', 'power_strength', 'power_jumping', 'mentality_interceptions', 'mentality_positioning', 'defending_marking_awareness', 'defending_standing_tackle', 'defending_sliding_tackle', 'attacking_crossing'],
-                   weights: ['pace', 'passing', 'defending']
-               },
-               'CDM': {
-                   display: ['pace', 'passing', 'dribbling', 'defending', 'physic', 'mentality_interceptions', 'mentality_positioning', 'defending_standing_tackle', 'defending_sliding_tackle'],
-                   weights: ['pace', 'passing', 'dribbling', 'defending', 'physic']
-               },
-               'CM': {
-                   display: ['pace', 'passing', 'dribbling', 'defending', 'physic', 'power_stamina', 'power_strength', 'mentality_vision'],
-                   weights: ['pace', 'passing', 'dribbling', 'defending', 'physic']
-               },
-               'CAM': {
-                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_long_shots', 'mentality_vision', 'mentality_penalties'],
-                   weights: ['pace', 'shooting', 'passing', 'dribbling']
-               },
-               'RW': {
-                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_long_shots', 'skill_curve', 'skill_fk_accuracy', 'movement_acceleration', 'movement_sprint_speed'],
-                   weights: ['pace', 'shooting', 'passing', 'dribbling']
-               },
-               'LW': {
-                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_long_shots', 'skill_curve', 'skill_fk_accuracy', 'movement_acceleration', 'movement_sprint_speed'],
-                   weights: ['pace', 'shooting', 'passing', 'dribbling']
-               },
-               'CF': {
-                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_shot_power', 'power_jumping', 'mentality_positioning', 'mentality_composure'],
-                   weights: ['pace', 'shooting', 'passing', 'dribbling']
-               },
-               'ST': {
-                   display: ['pace', 'shooting', 'dribbling', 'power_shot_power', 'power_jumping', 'power_strength', 'mentality_positioning', 'attacking_finishing'],
-                   weights: ['pace', 'shooting', 'dribbling']
-               }
-           };
+  const POSITIONS = ['GK','CB','LB','RB','CDM','CM','CAM','RW','LW','CF','ST'];
 
+  const POSITION_METRICS = {
+    'GK': { display: ['goalkeeping_diving','goalkeeping_handling','goalkeeping_kicking','goalkeeping_positioning','goalkeeping_reflexes'], weights: ['goalkeeping_diving','goalkeeping_handling','goalkeeping_kicking','goalkeeping_positioning','goalkeeping_reflexes'] },
+    'CB': { display: ['pace','passing','defending','power_strength','power_jumping','mentality_interceptions','mentality_positioning','defending_marking_awareness','defending_standing_tackle','defending_sliding_tackle','attacking_crossing'], weights: ['pace','passing','defending'] },
+    'LB': { display: ['pace','passing','defending','power_strength','power_jumping','mentality_interceptions','mentality_positioning','defending_marking_awareness','defending_standing_tackle','defending_sliding_tackle','attacking_crossing'], weights: ['pace','passing','defending'] },
+    'RB': { display: ['pace','passing','defending','power_strength','power_jumping','mentality_interceptions','mentality_positioning','defending_marking_awareness','defending_standing_tackle','defending_sliding_tackle','attacking_crossing'], weights: ['pace','passing','defending'] },
+    'CDM': { display: ['pace','passing','dribbling','defending','physic','mentality_interceptions','mentality_positioning','defending_standing_tackle','defending_sliding_tackle'], weights: ['pace','passing','dribbling','defending','physic'] },
+    'CM': { display: ['pace','passing','dribbling','defending','physic','power_stamina','power_strength','mentality_vision'], weights: ['pace','passing','dribbling','defending','physic'] },
+    'CAM': { display: ['pace','shooting','passing','dribbling','power_long_shots','mentality_vision','mentality_penalties'], weights: ['pace','shooting','passing','dribbling'] },
+    'RW': { display: ['pace','shooting','passing','dribbling','power_long_shots','skill_curve','skill_fk_accuracy','movement_acceleration','movement_sprint_speed'], weights: ['pace','shooting','passing','dribbling'] },
+    'LW': { display: ['pace','shooting','passing','dribbling','power_long_shots','skill_curve','skill_fk_accuracy','movement_acceleration','movement_sprint_speed'], weights: ['pace','shooting','passing','dribbling'] },
+    'CF': { display: ['pace','shooting','passing','dribbling','power_shot_power','power_jumping','mentality_positioning','mentality_composure'], weights: ['pace','shooting','passing','dribbling'] },
+    'ST': { display: ['pace','shooting','dribbling','power_shot_power','power_jumping','power_strength','mentality_positioning','attacking_finishing'], weights: ['pace','shooting','dribbling'] }
+  };
 
-      function createSlider(attr, min, max, valMin, valMax) {
-        return `
-          <div>
-            <label class="block text-sm mb-1">${attr}: <span id="${attr}Val">${valMin} - ${valMax}</span></label>
-            <input id="${attr}_min" type="range" min="${min}" max="${max}" value="${valMin}" class="attribute-slider mb-2">
-            <input id="${attr}_max" type="range" min="${min}" max="${max}" value="${valMax}" class="attribute-slider">
-          </div>`;
-      }
+  // Populate position dropdown
+  POSITIONS.forEach(p => {
+    const opt = document.createElement('option'); opt.value=p; opt.textContent=p; posSelect.appendChild(opt);
+  });
 
-      function createWeightSlider(attr) {
-        return `
-          <div>
-            <label>${attr} Weight: <span id="w_${attr}_val">50</span></label>
-            <input id="w_${attr}" type="range" min="0" max="100" value="50" class="attribute-slider">
-          </div>`;
-      }
+  function createSlider(attr,min=0,max=99,valMin=50,valMax=90){
+    return `<div>
+      <label class="block text-sm mb-1">${attr}: <span id="${attr}Val">${valMin} - ${valMax}</span></label>
+      <input id="${attr}_min" type="range" min="${min}" max="${max}" value="${valMin}" class="attribute-slider mb-2">
+      <input id="${attr}_max" type="range" min="${min}" max="${max}" value="${valMax}" class="attribute-slider">
+    </div>`;
+  }
 
-      function generateSliders() {
-        const pos = posSelect.value;
-        const metrics = POSITION_METRICS[pos] || [];
-        dynMetrics.innerHTML = metrics.map(m => createSlider(m, 0, 99, 50, 90)).join('');
-        weightContainer.innerHTML = metrics.map(m => createWeightSlider(m)).join('');
-        setupSliderListeners();
-      }
+  function createWeightSlider(attr){
+    return `<div>
+      <label>${attr} Weight: <span id="w_${attr}_val">50</span></label>
+      <input id="w_${attr}" type="range" min="0" max="100" value="50" class="attribute-slider">
+    </div>`;
+  }
 
-      function setupSliderListeners() {
-        document.querySelectorAll('input[type="range"]').forEach(sl => {
-          sl.oninput = () => {
-            const id = sl.id.replace('_min', '').replace('_max', '');
-            const span = document.getElementById(sl.id.includes('w_') ? `${sl.id}_val` : `${id}Val`);
-            if (span) {
-              if (sl.id.includes('w_')) span.textContent = sl.value;
-              else {
-                const min = document.getElementById(`${id}_min`)?.value || 0;
-                const max = document.getElementById(`${id}_max`)?.value || 0;
-                span.textContent = `${min} - ${max}`;
-              }
-            }
-          };
-        });
-      }
-
-      async function safeFetch(endpoint, data) {
-        try {
-          const res = await fetch(`${BACKEND_URL}${endpoint}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            mode: "cors"
-          });
-          if (!res.ok) throw new Error(`Server error ${res.status}`);
-          return await res.json();
-        } catch (err) {
-          console.error("❌ Fetch error:", err);
-          alert("Backend connection issue. Try again shortly.");
-          return { error: true };
+  function setupSliderListeners(){
+    document.querySelectorAll('input[type="range"]').forEach(sl=>{
+      sl.oninput = ()=>{
+        const spanId = sl.id.includes('w_') ? `${sl.id}_val` : `${sl.id.replace('_min','').replace('_max','')}Val`;
+        const span = document.getElementById(spanId);
+        if(!span) return;
+        if(sl.id.includes('w_')) span.textContent = sl.value;
+        else {
+          const id = sl.id.replace('_min','').replace('_max','');
+          const min = document.getElementById(`${id}_min`).value;
+          const max = document.getElementById(`${id}_max`).value;
+          span.textContent = `${min} - ${max}`;
         }
       }
-
-      findBtn.onclick = async () => {
-        loader.classList.remove("hidden");
-        results.innerHTML = "";
-        const payload = { club_position: posSelect.value, weights: {} };
-        document.querySelectorAll('input[type="range"]').forEach(sl => {
-          if (sl.id.startsWith("w_")) payload.weights[sl.id.replace("w_", "")] = parseInt(sl.value);
-          else payload[sl.id] = parseFloat(sl.value);
-        });
-        const res = await safeFetch("/find_players", payload);
-        loader.classList.add("hidden");
-        displayPlayers(res.players || [], results);
-      };
-
-      searchBtn.onclick = async () => {
-        const name = document.getElementById("playerNameSearch").value;
-        if (!name) return alert("Enter player name");
-        loader.classList.remove("hidden");
-        playerSearchResults.innerHTML = "";
-        const res = await safeFetch("/search_player", { player_name: name });
-        loader.classList.add("hidden");
-        displayPlayers(res || [], playerSearchResults);
-      };
-
-      function displayPlayers(players, container) {
-        container.innerHTML = players.length
-          ? players.map(p => `
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-600 text-center hover:scale-105 transition-transform cursor-pointer">
-              <img src="${p.player_face_url || ''}" class="w-20 h-20 rounded-full mx-auto border-2 border-green-500 mb-3">
-              <h4 class="text-lg font-bold text-green-400">${p.short_name}</h4>
-              <p class="text-gray-400">${p.club_position} | OVR: ${p.overall}</p>
-              <p class="text-gray-500 text-sm">Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>
-            </div>`).join('')
-          : "<div class='text-center text-gray-400 col-span-full'>No results found.</div>";
-      }
-
-      generateSliders();
     });
-  </script>
+  }
+
+  function generateSliders(){
+    const pos = posSelect.value;
+    dynMetrics.innerHTML = createSlider("overall",50,99,70,95) + createSlider("age",16,40,20,30);
+    (POSITION_METRICS[pos].display||[]).forEach(m=>dynMetrics.innerHTML+=createSlider(m));
+    weightContainer.innerHTML="<h4 class='text-lg font-semibold text-green-400'>Desired Attributes</h4>";
+    (POSITION_METRICS[pos].weights||[]).forEach(m=>weightContainer.innerHTML+=createWeightSlider(m));
+    setupSliderListeners();
+  }
+
+  async function safeFetch(url,data){
+    try{
+      const res = await fetch(url,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+      });
+      if(!res.ok) throw new Error(`Server error ${res.status}`);
+      return await res.json();
+    }catch(err){
+      console.error("❌ Fetch error:",err);
+      alert("Backend connection issue. Try again shortly.");
+      return {error:true};
+    }
+  }
+
+  findBtn.onclick = async ()=>{
+    loader.classList.remove("hidden"); results.innerHTML="";
+    const payload={club_position:posSelect.value,weights:{}};
+    document.querySelectorAll('input[type="range"]').forEach(sl=>{
+      if(sl.id.startsWith("w_")) payload.weights[sl.id.replace("w_","")]=parseInt(sl.value);
+      else payload[sl.id]=parseFloat(sl.value);
+    });
+    const res = await safeFetch(`${BACKEND_URL}/find_players`,payload);
+    loader.classList.add("hidden");
+    displayPlayers(res.players||[],results);
+  };
+
+  searchBtn.onclick = async ()=>{
+    const name=document.getElementById("playerNameSearch").value;
+    if(!name) return alert("Enter player name");
+    loader.classList.remove("hidden"); playerSearchResults.innerHTML="";
+    const res = await safeFetch(`${BACKEND_URL}/search_player`,{player_name:name});
+    loader.classList.add("hidden");
+    displayPlayers(res||[],playerSearchResults);
+  };
+
+  function displayPlayers(players,container){
+    container.innerHTML="";
+    if(!players.length){container.innerHTML="<div class='text-center text-gray-400 col-span-full'>No results found.</div>"; return;}
+    players.forEach(p=>{
+      const card=document.createElement("div");
+      card.className="bg-gray-800 p-6 rounded-xl border border-gray-600 text-center hover:scale-105 transition-transform cursor-pointer";
+      card.innerHTML=`
+        <img src="${p.player_face_url||''}" class="w-20 h-20 rounded-full mx-auto border-2 border-green-500 mb-3">
+        <h4 class="text-lg font-bold text-green-400">${p.short_name}</h4>
+        <p class="text-gray-400">${p.club_position} | OVR: ${p.overall}</p>
+        <p class="text-gray-500 text-sm">Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>`;
+      card.onclick=()=>showModal(p); container.appendChild(card);
+    });
+  }
+
+  function showModal(p){
+    modalContent.innerHTML=`
+      <div class="text-center">
+        <img src="${p.player_face_url||''}" class="w-24 h-24 rounded-full border-2 border-green-500 mx-auto mb-2">
+        <h3 class="text-2xl font-bold text-green-400">${p.short_name}</h3>
+        <p>${p.club_position} | OVR ${p.overall}</p>
+        <p>Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>
+      </div>`;
+    modal.style.display="block";
+  }
+
+  posSelect.onchange = generateSliders;
+  generateSliders();
+});
+</script>
 
 </body>
 </html>
