@@ -110,7 +110,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const backendBase = "https://802eb468d1e1.ngrok-free.app/api"; // your ngrok backend
+      // ✅ Use your Render backend here
+      const BACKEND_URL = "https://momentumai-backend-g1ov.onrender.com";
 
       const posSelect = document.getElementById("position");
       const dynMetrics = document.getElementById("dynamicMetrics");
@@ -129,67 +130,107 @@
       window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
 
       const POSITION_METRICS = {
-        "GK": { display: ["goalkeeping_diving","goalkeeping_handling","goalkeeping_reflexes"], weights: [] },
-        "CB": { display: ["pace","defending","passing"], weights: ["pace","defending","passing"] },
-        "CM": { display: ["pace","passing","dribbling","defending","physic"], weights: ["pace","passing","dribbling","defending"] },
-        "CAM": { display: ["pace","shooting","passing","dribbling"], weights: ["pace","shooting","passing","dribbling"] },
-        "ST": { display: ["pace","shooting","dribbling"], weights: ["pace","shooting","dribbling"] }
-      };
+        'GK': {
+                   display: ['goalkeeping_diving', 'goalkeeping_handling', 'goalkeeping_kicking', 'goalkeeping_positioning', 'goalkeeping_reflexes'],
+                   weights: ['goalkeeping_diving', 'goalkeeping_handling', 'goalkeeping_kicking', 'goalkeeping_positioning', 'goalkeeping_reflexes']
+               },
+               'CB': {
+                   display: ['pace', 'passing', 'defending', 'power_strength', 'power_jumping', 'mentality_interceptions', 'mentality_positioning', 'defending_marking_awareness', 'defending_standing_tackle', 'defending_sliding_tackle', 'attacking_crossing'],
+                   weights: ['pace', 'passing', 'defending']
+               },
+               'LB': {
+                   display: ['pace', 'passing', 'defending', 'power_strength', 'power_jumping', 'mentality_interceptions', 'mentality_positioning', 'defending_marking_awareness', 'defending_standing_tackle', 'defending_sliding_tackle', 'attacking_crossing'],
+                   weights: ['pace', 'passing', 'defending']
+               },
+               'RB': {
+                   display: ['pace', 'passing', 'defending', 'power_strength', 'power_jumping', 'mentality_interceptions', 'mentality_positioning', 'defending_marking_awareness', 'defending_standing_tackle', 'defending_sliding_tackle', 'attacking_crossing'],
+                   weights: ['pace', 'passing', 'defending']
+               },
+               'CDM': {
+                   display: ['pace', 'passing', 'dribbling', 'defending', 'physic', 'mentality_interceptions', 'mentality_positioning', 'defending_standing_tackle', 'defending_sliding_tackle'],
+                   weights: ['pace', 'passing', 'dribbling', 'defending', 'physic']
+               },
+               'CM': {
+                   display: ['pace', 'passing', 'dribbling', 'defending', 'physic', 'power_stamina', 'power_strength', 'mentality_vision'],
+                   weights: ['pace', 'passing', 'dribbling', 'defending', 'physic']
+               },
+               'CAM': {
+                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_long_shots', 'mentality_vision', 'mentality_penalties'],
+                   weights: ['pace', 'shooting', 'passing', 'dribbling']
+               },
+               'RW': {
+                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_long_shots', 'skill_curve', 'skill_fk_accuracy', 'movement_acceleration', 'movement_sprint_speed'],
+                   weights: ['pace', 'shooting', 'passing', 'dribbling']
+               },
+               'LW': {
+                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_long_shots', 'skill_curve', 'skill_fk_accuracy', 'movement_acceleration', 'movement_sprint_speed'],
+                   weights: ['pace', 'shooting', 'passing', 'dribbling']
+               },
+               'CF': {
+                   display: ['pace', 'shooting', 'passing', 'dribbling', 'power_shot_power', 'power_jumping', 'mentality_positioning', 'mentality_composure'],
+                   weights: ['pace', 'shooting', 'passing', 'dribbling']
+               },
+               'ST': {
+                   display: ['pace', 'shooting', 'dribbling', 'power_shot_power', 'power_jumping', 'power_strength', 'mentality_positioning', 'attacking_finishing'],
+                   weights: ['pace', 'shooting', 'dribbling']
+               }
+           };
 
-      function createSlider(id, min, max, valMin, valMax) {
+
+      function createSlider(attr, min, max, valMin, valMax) {
         return `
           <div>
-            <label class="block text-sm mb-1">${id.replace(/_/g," ")}: <span id="${id}Val">${valMin} - ${valMax}</span></label>
-            <input id="${id}_min" type="range" min="${min}" max="${max}" value="${valMin}" class="attribute-slider mb-2">
-            <input id="${id}_max" type="range" min="${min}" max="${max}" value="${valMax}" class="attribute-slider">
+            <label class="block text-sm mb-1">${attr}: <span id="${attr}Val">${valMin} - ${valMax}</span></label>
+            <input id="${attr}_min" type="range" min="${min}" max="${max}" value="${valMin}" class="attribute-slider mb-2">
+            <input id="${attr}_max" type="range" min="${min}" max="${max}" value="${valMax}" class="attribute-slider">
           </div>`;
       }
 
-      function createWeightSlider(id) {
+      function createWeightSlider(attr) {
         return `
           <div>
-            <label>${id.replace(/_/g," ")} Desire: <span id="w_${id}_val">50</span></label>
-            <input id="w_${id}" type="range" min="0" max="100" value="50" class="attribute-slider">
+            <label>${attr} Weight: <span id="w_${attr}_val">50</span></label>
+            <input id="w_${attr}" type="range" min="0" max="100" value="50" class="attribute-slider">
           </div>`;
       }
 
       function generateSliders() {
         const pos = posSelect.value;
-        dynMetrics.innerHTML = createSlider("overall",50,99,70,95) + createSlider("age",16,40,20,30);
-        (POSITION_METRICS[pos]?.display || []).forEach(m => dynMetrics.innerHTML += createSlider(m,0,99,50,99));
+        const metrics = POSITION_METRICS[pos] || [];
+        dynMetrics.innerHTML = metrics.map(m => createSlider(m, 0, 99, 50, 90)).join('');
+        weightContainer.innerHTML = metrics.map(m => createWeightSlider(m)).join('');
+        setupSliderListeners();
+      }
 
-        weightContainer.innerHTML = "<h4 class='text-lg font-semibold text-green-400'>Desired Attributes</h4>";
-        (POSITION_METRICS[pos]?.weights || []).forEach(m => weightContainer.innerHTML += createWeightSlider(m));
-
-        document.querySelectorAll('input[type="range"]').forEach(slider=>{
-          slider.oninput=()=>{
-            const spanId = slider.id.includes("w_") ? slider.id + "_val" : slider.id.replace("_min","").replace("_max","") + "Val";
-            const span = document.getElementById(spanId);
-            if(span){
-              if(slider.id.includes("w_")) span.textContent = slider.value;
+      function setupSliderListeners() {
+        document.querySelectorAll('input[type="range"]').forEach(sl => {
+          sl.oninput = () => {
+            const id = sl.id.replace('_min', '').replace('_max', '');
+            const span = document.getElementById(sl.id.includes('w_') ? `${sl.id}_val` : `${id}Val`);
+            if (span) {
+              if (sl.id.includes('w_')) span.textContent = sl.value;
               else {
-                const id = slider.id.replace("_min","").replace("_max","");
-                const min = document.getElementById(id+"_min").value;
-                const max = document.getElementById(id+"_max").value;
+                const min = document.getElementById(`${id}_min`)?.value || 0;
+                const max = document.getElementById(`${id}_max`)?.value || 0;
                 span.textContent = `${min} - ${max}`;
               }
             }
-          }
+          };
         });
       }
 
-      posSelect.addEventListener("change", generateSliders);
-      resetBtn.addEventListener("click", () => location.reload());
-      generateSliders();
-
-      async function safeFetch(url, data) {
+      async function safeFetch(endpoint, data) {
         try {
-          const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+          const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            mode: "cors"
+          });
           if (!res.ok) throw new Error(`Server error ${res.status}`);
           return await res.json();
         } catch (err) {
-          console.error("Fetch error:", err);
-          alert("Unable to reach server. Try again later.");
+          console.error("❌ Fetch error:", err);
+          alert("Backend connection issue. Try again shortly.");
           return { error: true };
         }
       }
@@ -197,15 +238,12 @@
       findBtn.onclick = async () => {
         loader.classList.remove("hidden");
         results.innerHTML = "";
-        const payload = {};
+        const payload = { club_position: posSelect.value, weights: {} };
         document.querySelectorAll('input[type="range"]').forEach(sl => {
-          if (sl.id.startsWith("w_")) {
-            payload.weights = payload.weights || {};
-            payload.weights[sl.id.replace("w_","")] = parseInt(sl.value);
-          } else payload[sl.id] = parseFloat(sl.value);
+          if (sl.id.startsWith("w_")) payload.weights[sl.id.replace("w_", "")] = parseInt(sl.value);
+          else payload[sl.id] = parseFloat(sl.value);
         });
-        payload.club_position = posSelect.value;
-        const res = await safeFetch(`${backendBase}/find_players`, payload);
+        const res = await safeFetch("/find_players", payload);
         loader.classList.add("hidden");
         displayPlayers(res.players || [], results);
       };
@@ -215,40 +253,24 @@
         if (!name) return alert("Enter player name");
         loader.classList.remove("hidden");
         playerSearchResults.innerHTML = "";
-        const res = await safeFetch(`${backendBase}/search_player`, { player_name: name });
+        const res = await safeFetch("/search_player", { player_name: name });
         loader.classList.add("hidden");
         displayPlayers(res || [], playerSearchResults);
       };
 
       function displayPlayers(players, container) {
-        container.innerHTML = "";
-        if (!players.length) {
-          container.innerHTML = "<div class='text-center text-gray-400 col-span-full'>No results found.</div>";
-          return;
-        }
-        players.forEach(p => {
-          const card = document.createElement("div");
-          card.className = "bg-gray-800 p-6 rounded-xl border border-gray-600 text-center hover:scale-105 transition-transform cursor-pointer";
-          card.innerHTML = `
-            <img src="${p.player_face_url || ''}" alt="${p.short_name}" class="w-20 h-20 rounded-full mx-auto border-2 border-green-500 mb-3">
-            <h4 class="text-lg font-bold text-green-400">${p.short_name}</h4>
-            <p class="text-gray-400">${p.club_position} | OVR: ${p.overall}</p>
-            <p class="text-gray-500 text-sm">Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>`;
-          card.onclick = () => showModal(p);
-          container.appendChild(card);
-        });
+        container.innerHTML = players.length
+          ? players.map(p => `
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-600 text-center hover:scale-105 transition-transform cursor-pointer">
+              <img src="${p.player_face_url || ''}" class="w-20 h-20 rounded-full mx-auto border-2 border-green-500 mb-3">
+              <h4 class="text-lg font-bold text-green-400">${p.short_name}</h4>
+              <p class="text-gray-400">${p.club_position} | OVR: ${p.overall}</p>
+              <p class="text-gray-500 text-sm">Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>
+            </div>`).join('')
+          : "<div class='text-center text-gray-400 col-span-full'>No results found.</div>";
       }
 
-      function showModal(p) {
-        modalContent.innerHTML = `
-          <div class="text-center">
-            <img src="${p.player_face_url || ''}" class="w-24 h-24 rounded-full border-2 border-green-500 mx-auto mb-2">
-            <h3 class="text-2xl font-bold text-green-400">${p.short_name}</h3>
-            <p>${p.club_position} | OVR ${p.overall}</p>
-            <p>Value: £${(p.value_eur/1_000_000).toFixed(2)}M</p>
-          </div>`;
-        modal.style.display = "block";
-      }
+      generateSliders();
     });
   </script>
 
