@@ -80,9 +80,10 @@ body { font-family: 'Inter', sans-serif; }
     Watch a quick explainer video to understand how our AI scouting works and how it can save your club or agency hours of work.
   </p>
   <video controls class="mx-auto rounded-xl shadow-lg border border-gray-600 max-w-full">
-    <source src="assets/MomentumScoutAIDemo.mp4" type="video/mp4">
+    <source src="https://momentumai-backend-g1ov.onrender.com/assets/MomentumScoutAIDemo.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
+  
 </section>
 
 <section id="signup" class="container mx-auto px-6 py-16 bg-gray-800 rounded-xl shadow-lg border border-gray-600">
@@ -150,7 +151,7 @@ demoForm.addEventListener('submit', async (e) => {
 
   try {
     const response = await fetch(
-      'https://momentumai-backend-g1ov.onrender.com/api/submit_demo', // <-- LIVE backend URL
+      'https://momentumai-backend-g1ov.onrender.com/api/submit_demo',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -162,14 +163,14 @@ demoForm.addEventListener('submit', async (e) => {
 
     const result = await response.json();
     if (result.success) {
-        formMessage.classList.remove('hidden');
-        formMessage.innerHTML = `
-          ✅ Thank you, ${data.fullName}!<br>
-          Your demo dashboard is ready: <a href="${result.dashboard_link || '#'}" target="_blank" class="underline font-bold">Click here to access</a>
-        `;
-        demoForm.reset();
+      formMessage.classList.remove('hidden');
+      formMessage.innerHTML = `
+        ✅ Thank you, ${data.fullName}!<br>
+        Your demo dashboard will be sent shortly.
+      `;
+      demoForm.reset();
     } else {
-        throw new Error(result.message || 'Error submitting form.');
+      throw new Error(result.message || 'Error submitting form.');
     }
 
   } catch (error) {
@@ -177,6 +178,7 @@ demoForm.addEventListener('submit', async (e) => {
     alert("There was an error submitting the form. Please try again.");
   }
 });
+
 </script>
 </body>
 </html>
