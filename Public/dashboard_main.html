@@ -176,12 +176,61 @@ function populatePositions(){
     posSelect.appendChild(opt);
   });
 }
-function buildCoreSliders(){
-  coreSliders.innerHTML = '';
-  coreSliders.insertAdjacentHTML('beforeend', sliderBlock('overall',50,99,75,95));
-  coreSliders.insertAdjacentHTML('beforeend', sliderBlock('age',16,45,20,30));
-  coreSliders.insertAdjacentHTML('beforeend', sliderBlock('value',0,999,1,50)); // value in M£ on UI (we'll convert)
+// --- Build Core Sliders ---
+function buildCoreSliders() {
+  coreSliders.innerHTML = ''; // Clear existing
+
+  // Overall slider
+  coreSliders.insertAdjacentHTML('beforeend', createSlider('Overall', 50, 99, 75, 95));
+
+  // Age slider
+  coreSliders.insertAdjacentHTML('beforeend', createSlider('Age', 16, 45, 20, 30));
+
+  // Value ($) slider
+  coreSliders.insertAdjacentHTML('beforeend', createSlider('Value ($)', 0, 99999999, 1000000, 50000000));
+
+  // Setup listeners for dynamic update
+  setupSliderListeners();
 }
+
+// --- Create Slider HTML ---
+function createSlider(attr, min = 0, max = 100, valMin = min, valMax = max) {
+  const formatVal = v => '$' + v.toLocaleString();
+  return `
+    <div class="mb-4">
+      <label class="block text-sm mb-1 font-medium">${attr}: 
+        <span id="${attr}Val">${attr === 'Value ($)' ? formatVal(valMin) : valMin} - ${attr === 'Value ($)' ? formatVal(valMax) : valMax}</span>
+      </label>
+      <input id="${attr}_min" type="range" min="${min}" max="${max}" value="${valMin}" class="attribute-slider mb-2">
+      <input id="${attr}_max" type="range" min="${min}" max="${max}" value="${valMax}" class="attribute-slider">
+    </div>
+  `;
+}
+
+// --- Setup Slider Listeners for Dynamic Update ---
+function setupSliderListeners() {
+  document.querySelectorAll('input[type="range"]').forEach(sl => {
+    sl.oninput = () => {
+      const spanId = sl.id.includes('w_') ? `${sl.id}_val` : `${sl.id.replace('_min','').replace('_max','')}Val`;
+      const span = document.getElementById(spanId);
+      if (!span) return;
+
+      if (sl.id.includes('w_')) {
+        span.textContent = sl.value;
+      } else {
+        const id = sl.id.replace('_min', '').replace('_max', '');
+        const min = parseInt(document.getElementById(`${id}_min`).value);
+        const max = parseInt(document.getElementById(`${id}_max`).value);
+        if (id === 'Value ($)') {
+          span.textContent = '$' + min.toLocaleString() + ' - $' + max.toLocaleString();
+        } else {
+          span.textContent = `${min} - ${max}`;
+        }
+      }
+    };
+  });
+}
+
 function buildPositionMetrics(pos){
   dynMetrics.innerHTML = '';
   const metrics = (POSITION_METRICS[pos] && POSITION_METRICS[pos].display) || [];
@@ -287,7 +336,7 @@ async function safePost(endpoint, body){
     const resp = await fetch(BACKEND_BASE + endpoint, {
       method:'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(playerNameSearch),
       mode: 'cors'
     });
     if (!resp.ok) {
