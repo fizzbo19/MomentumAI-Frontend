@@ -146,7 +146,6 @@ body { font-family: 'Inter', sans-serif; }
   
   /* ---------- Demo Form Submission ---------- */
   const demoForm = document.getElementById('demoForm');
-  const formMessage = document.getElementById('formMessage');
   
   demoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -168,11 +167,12 @@ body { font-family: 'Inter', sans-serif; }
       const result = await response.json();
   
       if (result.success) {
-        // ✅ Redirect to welcome page with the user's name as a query parameter
-        window.location.href = `/welcome.html?name=${encodeURIComponent(data.fullName)}`;
-      } else {
-        alert(result.message || 'There was an issue submitting your form. Please try again.');
-      }
+  // Redirect to welcome page with the user's name as a query parameter
+  window.location.href = `/welcome.html?name=${encodeURIComponent(data.fullName)}`;
+} else {
+  alert(result.message || 'There was an issue submitting your form. Please try again.');
+}
+
   
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -180,6 +180,4 @@ body { font-family: 'Inter', sans-serif; }
     }
   });
   </script>
-  </body>
-  </html>
   
