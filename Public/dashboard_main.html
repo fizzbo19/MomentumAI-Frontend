@@ -591,8 +591,8 @@ function fullBoot(){
     });
     // Initial build for ST position
     buildCoreSliders();
-    buildPositionMetrics('ST');
-    buildWeightSliders('ST');
+    buildPositionMetrics(posSelect.value);
+    buildWeightSliders(posSelect.value);
     attachSliderListeners();
 }
 
