@@ -175,7 +175,7 @@ demoForm.addEventListener('submit', async (e) => {
       console.log("Submission result:", result);
 
       // ✅ Redirect user to dashboard on success
-      window.location.href = 'dashboard.html';
+      window.location.href = 'welcome.html'+ encodeURIComponent(data.fullName);
     } else {
       throw new Error(result.message || 'Error submitting form via proxy.');
     }
