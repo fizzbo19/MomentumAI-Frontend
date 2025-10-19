@@ -143,7 +143,7 @@ prevBtn.addEventListener('click', () => {
   index = (index - 1 + slides.length) % slides.length; updateCarousel();
 });
 
-/* ---------- Demo Form Submission ---------- */
+
 /* ---------- Demo Form Submission ---------- */
 const demoForm = document.getElementById('demoForm');
 const formMessage = document.getElementById('formMessage');
@@ -175,7 +175,7 @@ demoForm.addEventListener('submit', async (e) => {
       console.log("Submission result:", result);
 
       // ✅ Redirect user to dashboard on success
-      window.location.href = 'welcome.html'+ encodeURIComponent(data.fullName);
+      window.location.href = `welcome.html?name=${encodeURIComponent(data.fullName)}`;
     } else {
       throw new Error(result.message || 'Error submitting form via proxy.');
     }
