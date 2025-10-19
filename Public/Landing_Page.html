@@ -161,7 +161,7 @@ demoForm.addEventListener('submit', async (e) => {
 
     if (result.success) {
       // Redirect to a welcome page
-      window.location.href = 'https://momentumai-frontend.onrender.com/welcome.html' + encodeURIComponent(data.fullName);
+      window.location.href = 'https://momentumai-frontend.onrender.com/welcome.html?name=' + encodeURIComponent(data.fullName);
     } else {
       alert(result.message || 'There was an issue submitting your form. Please try again.');
     }
@@ -171,8 +171,6 @@ demoForm.addEventListener('submit', async (e) => {
     alert('There was an error submitting the form. Please try again.');
   }
 });
-
-
 </script>
 </body>
 </html>
