@@ -128,65 +128,72 @@ body { font-family: 'Inter', sans-serif; }
 </footer>
 
 <script>
-/* ---------- Carousel ---------- */
-const track = document.querySelector('.carousel-track');
-const slides = Array.from(track.children);
-const nextBtn = document.querySelector('.carousel-button.next');
-const prevBtn = document.querySelector('.carousel-button.prev');
-let index = 0;
-
-function updateCarousel() {
-  track.style.transform = `translateX(-${index * 100}%)`;
-}
-
-nextBtn.addEventListener('click', () => {
-  index = (index + 1) % slides.length;
-  updateCarousel();
-});
-
-prevBtn.addEventListener('click', () => {
-  index = (index - 1 + slides.length) % slides.length;
-  updateCarousel();
-});
-
-/* ---------- Demo Form Submission ---------- */
-const demoForm = document.getElementById('demoForm');
-const formMessage = document.getElementById('formMessage');
-
-demoForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const data = {
-    fullName: demoForm.fullName.value.trim(),
-    email: demoForm.email.value.trim(),
-    organization: demoForm.organization.value.trim(),
-    demoAccess: demoForm.demoAccess.checked
-  };
-
-  try {
-    const response = await fetch('https://momentumai-backend-g1ov.onrender.com/api/submit_demo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) throw new Error('Network response was not ok');
-
-    const result = await response.json();
-    console.log("Submission result:", result);
-
-    if (result.success) {
-      // ✅ Redirect to welcome page at root
-      window.location.href = `/welcome.html?name=${encodeURIComponent(data.fullName)}`;
-    } else {
-      throw new Error(result.message || 'Error submitting form.');
+  document.addEventListener('DOMContentLoaded', () => {
+    /* ---------- Carousel ---------- */
+    const track = document.querySelector('.carousel-track');
+    const slides = Array.from(track.children);
+    const nextBtn = document.querySelector('.carousel-button.next');
+    const prevBtn = document.querySelector('.carousel-button.prev');
+    let index = 0;
+  
+    function updateCarousel() {
+      track.style.transform = `translateX(-${index * 100}%)`;
     }
-
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("There was an error submitting the form. Please try again.");
-  }
-});
-</script>
+  
+    nextBtn.addEventListener('click', () => {
+      index = (index + 1) % slides.length;
+      updateCarousel();
+    });
+  
+    prevBtn.addEventListener('click', () => {
+      index = (index - 1 + slides.length) % slides.length;
+      updateCarousel();
+    });
+  
+    /* ---------- Demo Form Submission ---------- */
+    const demoForm = document.getElementById('demoForm');
+    const formMessage = document.getElementById('formMessage');
+  
+    if (!demoForm) {
+      console.error("Error: demoForm element not found!");
+      return;
+    }
+  
+    demoForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      console.log("Form submitted"); // ✅ Debug: confirms listener works
+  
+      const data = {
+        fullName: demoForm.fullName.value.trim(),
+        email: demoForm.email.value.trim(),
+        organization: demoForm.organization.value.trim(),
+        demoAccess: demoForm.demoAccess.checked
+      };
+  
+      try {
+        const response = await fetch('https://momentumai-backend-g1ov.onrender.com/api/submit_demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+  
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+  
+        const result = await response.json();
+        console.log("Backend response:", result); // ✅ Debug: see backend response
+  
+        if (result.success) {
+          console.log("Submission successful, redirecting...");
+          window.location.href = `welcome.html?name=${encodeURIComponent(data.fullName)}`;
+        } else {
+          alert(result.message || 'There was an issue submitting your form. Please try again.');
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert('There was an error submitting the form. Please try again.');
+      }
+    });
+  });
+  </script>  
 </body>
 </html>
