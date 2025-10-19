@@ -102,7 +102,7 @@
 
 <script>
 /* ------------- Configuration ------------- */
-const BACKEND_BASE = "https://momentumai-backend-g1ov.onrender.com/api"; // adjust if necessary
+const BACKEND_BASE = "https://momentumai-backend-g1ov.onrender.com/api"; // Render URL placeholder
 const DEFAULT_VALUE_MIN = 100000;
 const DEFAULT_VALUE_MAX = 50000000;
 
@@ -185,7 +185,7 @@ function buildCoreSliders() {
   coreSliders.insertAdjacentHTML('beforeend', createSlider('Age', 16, 45, 20, 30));
 
   // Value ($) INPUT BOXES
-  coreSliders.insertAdjacentHTML('beforeend', createValueInputBlock('Value ($)', DEFAULT_VALUE_MIN, DEFAULT_VALUE_MAX));
+  coreSliders.insertAdjacentHTML('beforeend', createValueInputBlock('Value', DEFAULT_VALUE_MIN, DEFAULT_VALUE_MAX));
 
   // Setup listeners for dynamic update
   setupSliderListeners();
@@ -207,7 +207,7 @@ function createSlider(attr, min = 0, max = 100, valMin = min, valMax = max) {
 
 // --- Create Value Input Block HTML ---
 function createValueInputBlock(attr, valMin, valMax) {
-  const fmt = v => '£' + v.toLocaleString();
+  const fmt = v => '£' + Number(v).toLocaleString('en-GB', { maximumFractionDigits: 0 });
   return `
     <div class="mb-4 fade-in">
         <label class="block text-sm mb-1 font-medium">${attr} (GBP):</label>
@@ -222,12 +222,12 @@ function createValueInputBlock(attr, valMin, valMax) {
 
 // --- Setup Value Input Listeners ---
 function setupValueInputListeners() {
-  const minInput = document.getElementById('Value ($)_min');
-  const maxInput = document.getElementById('Value ($)_max');
-  const minDisplay = document.getElementById('Value ($)MinDisplay');
-  const maxDisplay = document.getElementById('Value ($)MaxDisplay');
+  const minInput = document.getElementById('Value_min');
+  const maxInput = document.getElementById('Value_max');
+  const minDisplay = document.getElementById('ValueMinDisplay');
+  const maxDisplay = document.getElementById('ValueMaxDisplay');
 
-  const formatDisplay = (v) => v ? '£' + Number(v).toLocaleString() : '—';
+  const formatDisplay = (v) => v ? '£' + Number(v).toLocaleString('en-GB', { maximumFractionDigits: 0 }) : '—';
 
   const updateDisplay = () => {
     minDisplay.textContent = formatDisplay(minInput.value);
@@ -358,13 +358,19 @@ async function safePost(endpoint, body){
       body: JSON.stringify(body), 
       mode: 'cors'
     });
+    
+    // Check for HTTP errors (like 500, 404) BEFORE trying to read JSON
     if (!resp.ok) {
       const text = await resp.text().catch(()=>'');
       throw new Error(`Backend Status ${resp.status}: ${text}`);
     }
+    
+    // If status is OK (200), parse and return the JSON data
     return await resp.json();
+
   } catch(err) {
     console.error('safePost error', err);
+    // Re-throw the error for the calling function to display
     throw err;
   }
 }
