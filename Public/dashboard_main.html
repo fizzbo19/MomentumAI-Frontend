@@ -505,15 +505,27 @@ function renderPlayerCard(player, rankIndex) {
   card.className = 'bg-gray-800 p-4 rounded-xl border border-gray-700 hover:scale-105 transition-transform cursor-pointer';
   if (rankIndex < 5) card.classList.add('top-five');
 
-  // Handle FC26 key differences
   const name = player.short_name || player.long_name || player.name || "Unknown";
   const position = player.club_position || player.position || player.play_pos || "—";
   const overall = player.overall_rating || player.overall || player.ovr || "—";
   const potential = player.potential_rating || player.potential || "—";
-  const face = player.player_face_url || player.player_image || player.face_url || "https://via.placeholder.com/96";
-  const value = player.market_value_eur || player.value_eur || player.value || 0;
-  const minVal = player.negotiation_min || player.min_value_eur || Math.round(value * 0.8);
-  const maxVal = player.negotiation_max || player.max_value_eur || Math.round(value * 1.2);
+  const face = player.player_face_url || "https://cdn.sofifa.net/players/notfound.webp";
+  const value = player.value_eur || player.market_value_eur || 0;
+  const negotiationMin = player.negotiation?.min || Math.round(value * 0.8);
+  const negotiationMax = player.negotiation?.max || Math.round(value * 1.2);
+
+  // Mini projections preview (next 3 years)
+  const projections = player.projections || [];
+  let miniProjHtml = '';
+  projections.slice(0, 3).forEach(p => {
+    const projectedValue = p.projected_value_eur;
+    let colorClass = 'text-gray-400';
+    let arrow = '–';
+    if (projectedValue > value) { colorClass = 'text-green-400'; arrow = '↑'; }
+    else if (projectedValue < value) { colorClass = 'text-red-400'; arrow = '↓'; }
+
+    miniProjHtml += `<div class="text-xs ${colorClass}">Year ${p.year}: ${fmtGBPFromEur(projectedValue)} ${arrow}</div>`;
+  });
 
   card.innerHTML = `
     <div class="flex items-center gap-3">
@@ -529,11 +541,16 @@ function renderPlayerCard(player, rankIndex) {
             <div class="text-lg font-bold">${fmtGBPFromEur(value)}</div>
           </div>
         </div>
-        <div class="mt-2 text-sm text-gray-400">Negotiation: 
+
+        <div class="mt-1 text-sm text-gray-400">
+          Negotiation: 
           <span class="font-semibold text-green-200">
-            ${fmtGBPFromEur(minVal)} - ${fmtGBPFromEur(maxVal)}
+            ${fmtGBPFromEur(negotiationMin)} - ${fmtGBPFromEur(negotiationMax)}
           </span>
         </div>
+
+        ${miniProjHtml ? `<div class="mt-2 text-xs text-gray-400">Projections:<br>${miniProjHtml}</div>` : ''}
+        
         <div class="mt-2 text-xs text-gray-500">Click for full FC26 attributes & projections</div>
       </div>
     </div>
@@ -543,16 +560,17 @@ function renderPlayerCard(player, rankIndex) {
   return card;
 }
 
+
 function showPlayerModal(player) {
   const name = player.short_name || player.long_name || player.name || "Unknown Player";
   const position = player.club_position || player.position || player.play_pos || "—";
   const overall = player.overall_rating || player.overall || player.ovr || "—";
   const potential = player.potential_rating || player.potential || "—";
-  const face = player.player_face_url || player.player_image || player.face_url || "https://via.placeholder.com/120";
-  const value = player.market_value_eur || player.value_eur || player.value || 0;
+  const face = player.player_face_url || "https://cdn.sofifa.net/players/notfound.webp";
+  const value = player.value_eur || player.market_value_eur || 0;
   const age = player.age || player.full_attributes?.age || "—";
-  const negotiationMin = player.negotiation_min || Math.round(value * 0.8);
-  const negotiationMax = player.negotiation_max || Math.round(value * 1.2);
+  const negotiationMin = player.negotiation?.min || Math.round(value * 0.8);
+  const negotiationMax = player.negotiation?.max || Math.round(value * 1.2);
 
   // FC26 attributes — dynamic rendering
   const attrs = player.full_attributes || {};
@@ -562,15 +580,13 @@ function showPlayerModal(player) {
   });
   attributesHtml += `</div>`;
 
-  // Negotiation section
-  const negotiationHtml = `
-    <div class="mt-3 text-sm text-gray-300">
-      Negotiation Guidance:
-      <div class="mt-1 font-semibold text-green-200">
-        ${fmtGBPFromEur(negotiationMin)} — ${fmtGBPFromEur(negotiationMax)}
-      </div>
-    </div>
-  `;
+  // Projections — dynamic rendering
+  const projections = player.projections || [];
+  let projectionsHtml = `<div class="grid grid-cols-1 gap-1 text-sm text-gray-300">`;
+  projections.forEach(p => {
+    projectionsHtml += `<div>Year ${p.year}: ${fmtGBPFromEur(p.projected_value_eur)}</div>`;
+  });
+  projectionsHtml += `</div>`;
 
   modalInner.innerHTML = `
     <div class="space-y-4">
@@ -585,14 +601,22 @@ function showPlayerModal(player) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <h4 class="text-sm text-gray-300 mb-2">Negotiation</h4>
-          <div class="p-3 bg-gray-900 rounded">
-            ${negotiationHtml}
+          <div class="p-3 bg-gray-900 rounded max-h-96 overflow-auto">
+            <div class="mt-1 font-semibold text-green-200">
+              ${fmtGBPFromEur(negotiationMin)} — ${fmtGBPFromEur(negotiationMax)}
+            </div>
           </div>
         </div>
         <div>
-          <h4 class="text-sm text-gray-300 mb-2">FC26 Attributes</h4>
+          <h4 class="text-sm text-gray-300 mb-2">Player Attributes</h4>
           <div class="p-3 bg-gray-900 rounded max-h-96 overflow-auto">
             ${attributesHtml}
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm text-gray-300 mb-2">Projections</h4>
+          <div class="p-3 bg-gray-900 rounded max-h-96 overflow-auto">
+            ${projectionsHtml}
           </div>
         </div>
       </div>
