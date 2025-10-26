@@ -506,11 +506,11 @@ function renderPlayerCard(player, rankIndex) {
   if (rankIndex < 5) card.classList.add('top-five');
 
   const name = player.short_name || player.long_name || player.name || "Unknown";
-  const position = player.club_position || player.position || player.play_pos || "—";
-  const overall = player.overall_rating || player.overall || player.ovr || "—";
+  const position = player.club_position || player.position || "—";
+  const overall = player.overall_rating || player.overall || "—";
   const potential = player.potential_rating || player.potential || "—";
   const face = player.player_face_url || "https://cdn.sofifa.net/players/notfound.webp";
-  const value = player.value_eur || player.market_value_eur || 0;
+  const value = player.value_eur || 0;
   const negotiationMin = player.negotiation?.min || Math.round(value * 0.8);
   const negotiationMax = player.negotiation?.max || Math.round(value * 1.2);
 
@@ -523,7 +523,6 @@ function renderPlayerCard(player, rankIndex) {
     let arrow = '–';
     if (projectedValue > value) { colorClass = 'text-green-400'; arrow = '↑'; }
     else if (projectedValue < value) { colorClass = 'text-red-400'; arrow = '↓'; }
-
     miniProjHtml += `<div class="text-xs ${colorClass}">Year ${p.year}: ${fmtGBPFromEur(projectedValue)} ${arrow}</div>`;
   });
 
@@ -550,7 +549,6 @@ function renderPlayerCard(player, rankIndex) {
         </div>
 
         ${miniProjHtml ? `<div class="mt-2 text-xs text-gray-400">Projections:<br>${miniProjHtml}</div>` : ''}
-        
         <div class="mt-2 text-xs text-gray-500">Click for full FC26 attributes & projections</div>
       </div>
     </div>
@@ -563,16 +561,16 @@ function renderPlayerCard(player, rankIndex) {
 
 function showPlayerModal(player) {
   const name = player.short_name || player.long_name || player.name || "Unknown Player";
-  const position = player.club_position || player.position || player.play_pos || "—";
-  const overall = player.overall_rating || player.overall || player.ovr || "—";
+  const position = player.club_position || player.position || "—";
+  const overall = player.overall_rating || player.overall || "—";
   const potential = player.potential_rating || player.potential || "—";
   const face = player.player_face_url || "https://cdn.sofifa.net/players/notfound.webp";
-  const value = player.value_eur || player.market_value_eur || 0;
+  const value = player.value_eur || 0;
   const age = player.age || player.full_attributes?.age || "—";
   const negotiationMin = player.negotiation?.min || Math.round(value * 0.8);
   const negotiationMax = player.negotiation?.max || Math.round(value * 1.2);
 
-  // FC26 attributes — dynamic rendering
+  // Full attributes
   const attrs = player.full_attributes || {};
   let attributesHtml = `<div class="grid grid-cols-2 gap-2">`;
   Object.keys(attrs).forEach(k => {
@@ -580,7 +578,7 @@ function showPlayerModal(player) {
   });
   attributesHtml += `</div>`;
 
-  // Projections — dynamic rendering
+  // Full projections
   const projections = player.projections || [];
   let projectionsHtml = `<div class="grid grid-cols-1 gap-1 text-sm text-gray-300">`;
   projections.forEach(p => {
